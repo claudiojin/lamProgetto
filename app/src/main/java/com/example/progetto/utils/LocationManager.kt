@@ -28,10 +28,15 @@ class LocationManager(private val context: Context) {
      * 类比：检查JWT token是否有效
      */
     fun hasLocationPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
+        val fine = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return fine || coarse
     }
 
     /**
@@ -84,11 +89,17 @@ class LocationManager(private val context: Context) {
         }
 
         // 开始请求位置更新
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        try {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        } catch (se: SecurityException) {
+            // 权限可能在运行时被撤销
+            close(se)
+            return@callbackFlow
+        }
 
         // 当Flow被取消时，停止位置更新
         awaitClose {

@@ -34,7 +34,7 @@ interface TripDao {
 
     //get viaggio by ID
     @Query("SELECT * FROM trips WHERE id = :tripId")
-    fun getTripById(tripId: Long): Trip?
+    suspend fun getTripById(tripId: Long): Trip?
 
     //get viaggio con filtro di tipo
     @Query("SELECT * FROM trips WHERE type = :type ORDER BY createdAt DESC")

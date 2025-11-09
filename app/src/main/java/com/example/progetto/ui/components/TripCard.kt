@@ -1,5 +1,6 @@
 package com.example.progetto.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,12 +25,15 @@ import com.example.progetto.data.entity.Trip
 fun TripCard(
     trip: Trip,
     onDeleted: (Trip) -> Unit,
-    onEdit: (Trip) -> Unit
+    onEdit: (Trip) -> Unit,
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onClick() },  // 整个卡片可点击，传递当前 trip
+
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp))
@@ -80,14 +84,14 @@ fun TripCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ){
+            ) {
                 OutlinedButton(
-                    onClick = {onEdit(trip)},
+                    onClick = { onEdit(trip) },
                     modifier = Modifier.weight(1f)
-                ){Text("Modifica")}
+                ) { Text("Modifica") }
             }
             Button(
-                onClick = { onDeleted(trip)},
+                onClick = { onDeleted(trip) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
                 ),

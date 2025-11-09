@@ -6,8 +6,10 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"></uses-permission>
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".TravelCompanionApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,6 +18,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Progetto">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDZ5J3l0uKW95tKhrh2eeAkmPWNFB8fiv0" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,6 +34,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver
+            android:name=".receivers.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
