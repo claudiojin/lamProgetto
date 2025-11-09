@@ -8,6 +8,8 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.progetto.data.dao.GeofenceDao
 import com.example.progetto.data.dao.LocationDao
+import com.example.progetto.data.dao.PhotoDao
+import com.example.progetto.data.dao.NoteDao
 import com.example.progetto.data.dao.TripDao
 import com.example.progetto.data.entity.LocationPoint
 import com.example.progetto.data.entity.Trip
@@ -23,9 +25,11 @@ import com.example.progetto.data.entity.*
         Trip::class,
         LocationPoint::class,
         GeofenceArea::class,
-        GeofenceEvent::class
+        GeofenceEvent::class,
+        Photo::class,
+        Note::class
     ],
-    version = 4,
+    version = 7,
     exportSchema = false
 )
 
@@ -34,6 +38,8 @@ abstract class TripDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
     abstract fun locationDao(): LocationDao
     abstract fun geofenceDao(): GeofenceDao
+    abstract fun photoDao(): PhotoDao
+    abstract fun noteDao(): NoteDao
 
     companion object {
         @Volatile

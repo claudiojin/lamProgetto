@@ -21,7 +21,8 @@ fun TripMapView(
     locations: List<LocationPoint>,
     currentLocation: LocationPoint? = null,
     showRoute: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    notePoints: List<Pair<Double, Double>> = emptyList()
 ) {
     // 如果没有位置数据，显示默认位置（北京）
     val defaultPosition = LatLng(39.9042, 116.4074)
@@ -124,6 +125,17 @@ fun TripMapView(
                     strokeWidth = 2f
                 )
             }
+        }
+
+        // 5. 附带位置的照片/笔记标记（黄色）
+        notePoints.forEach { (lat, lng) ->
+            Marker(
+                state = MarkerState(position = LatLng(lat, lng)),
+                title = "照片/笔记",
+                snippet = "附加在这里的瞬间",
+                icon = com.google.android.gms.maps.model.BitmapDescriptorFactory
+                    .defaultMarker(com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_YELLOW)
+            )
         }
     }
 }

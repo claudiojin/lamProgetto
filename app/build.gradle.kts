@@ -10,7 +10,7 @@ android {
     compileSdk {
         version = release(36)
     }
-2
+
     defaultConfig {
         applicationId = "com.example.progetto"
         minSdk = 24
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.core)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.coil.compose)
     val room_version = "2.8.3"
     ksp("androidx.room:room-compiler:$room_version")
 

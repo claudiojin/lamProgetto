@@ -13,7 +13,14 @@ data class Trip(
     val type: TripType,
     var notes: String = "",
     var distance: Double = 0.0,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val detailedNotes: String = "",
+
+    // 新增：旅程起止时间与总时长（秒）
+    val startTimestamp: Long? = null,
+    val endTimestamp: Long? = null,
+    val durationSec: Long? = null
+
 )
 
 
@@ -22,5 +29,4 @@ enum class TripType(val displayName: String) {
     DAY_TRIP("Viaggio da un giorno"),
     MULTI_DAY("Viaggio con piu' giorni")
 }
-
 

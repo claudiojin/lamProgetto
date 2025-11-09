@@ -27,6 +27,10 @@ interface LocationDao{
     @Transaction
     @Query("SELECT * FROM trips WHERE id = :tripId")
     suspend fun getTripWithLocations(tripId: Long): TripWithLocations?
+
+    // 历史地图：按时间范围获取所有位置点
+    @Query("SELECT * FROM location_points WHERE timestamp BETWEEN :start AND :end ORDER BY tripId ASC, timestamp ASC")
+    fun getLocationsInRange(start: Long, end: Long): Flow<List<LocationPoint>>
 }
 
 data class TripWithLocationsEntity(
@@ -38,4 +42,3 @@ data class TripWithLocationsEntity(
     )
     val locations: List<LocationPoint>
 )
-

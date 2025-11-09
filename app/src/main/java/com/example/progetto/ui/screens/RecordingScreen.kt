@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.progetto.data.dao.LocationDao
+import com.example.progetto.data.dao.NoteDao
 import com.example.progetto.data.dao.TripDao
 import com.example.progetto.data.entity.LocationPoint
+import com.example.progetto.data.entity.Note
 import com.example.progetto.data.entity.Trip
 import com.example.progetto.ui.components.TripMapView
 import com.example.progetto.utils.LocationManager
@@ -23,6 +25,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
+import android.content.Intent
+import com.example.progetto.services.LocationTrackingService
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,6 +37,7 @@ fun RecordingScreen(
     tripId: Long,
     tripDao: TripDao,
     locationDao: LocationDao,
+    noteDao: NoteDao,
     onNavigateBack: () -> Unit
 ) {
     // 状态
@@ -47,9 +52,20 @@ fun RecordingScreen(
     val locationManager = remember { LocationManager(context) }
     val scope = rememberCoroutineScope()
 
+    var showNoteDialog by remember { mutableStateOf(false) }
+    var noteText by remember { mutableStateOf("") }
+
     // 加载旅行数据
     LaunchedEffect(tripId) {
-        trip = tripDao.getTripById(tripId)
+        // 加载Trip，并在首次进入录制时写入开始时间
+        val loaded = tripDao.getTripById(tripId)
+        if (loaded != null && loaded.startTimestamp == null) {
+            val startTs = System.currentTimeMillis()
+            tripDao.update(loaded.copy(startTimestamp = startTs))
+            trip = loaded.copy(startTimestamp = startTs)
+        } else {
+            trip = loaded
+        }
 
         // 加载已有的GPS点
         locationDao.getLocationsByTripId(tripId).collect { locations ->
@@ -71,30 +87,16 @@ fun RecordingScreen(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { /* 结果交由下次重组检查 */ }
 
-    // GPS追踪（仅在有权限时启动）
+    // 后台持续定位：使用前台服务进行追踪（包含前台与后台）
     LaunchedEffect(isRecording) {
         if (isRecording) {
             val hasPermission = locationManager.hasLocationPermission()
             if (!hasPermission) return@LaunchedEffect
-
-            locationManager.getLocationUpdates(2000).collect { location ->
-                currentLocation = location
-
-                // 保存到数据库
-                val locationPoint = LocationPoint(
-                    tripId = tripId,
-                    latitude = location.latitude,
-                    longitude = location.longitude,
-                    altitude = location.altitude,
-                    accuracy = location.accuracy,
-                    speed = location.speed,
-                    timestamp = System.currentTimeMillis()
-                )
-
-                scope.launch {
-                    locationDao.insert(locationPoint)
-                }
+            val intent = Intent(context, LocationTrackingService::class.java).apply {
+                action = LocationTrackingService.ACTION_START
+                putExtra(LocationTrackingService.EXTRA_TRIP_ID, tripId)
             }
+            androidx.core.content.ContextCompat.startForegroundService(context, intent)
         }
     }
 
@@ -102,10 +104,27 @@ fun RecordingScreen(
     fun stopRecording() {
         scope.launch {
             isRecording = false
+            // 停止前台服务
+            val stopIntent = Intent(context, LocationTrackingService::class.java).apply {
+                action = LocationTrackingService.ACTION_STOP
+            }
+            context.startService(stopIntent)
 
             // 更新Trip的距离
-            trip?.let {
-                val updatedTrip = it.copy(distance = totalDistance)
+            trip?.let { t ->
+                val now = System.currentTimeMillis()
+                val firstTs = recordedLocations.firstOrNull()?.timestamp
+                val lastTs = recordedLocations.lastOrNull()?.timestamp
+                val startTs = (t.startTimestamp ?: firstTs) ?: now
+                val endTs = (lastTs ?: now).coerceAtLeast(startTs)
+                val durationSec = ((endTs - startTs) / 1000).coerceAtLeast(0)
+
+                val updatedTrip = t.copy(
+                    distance = totalDistance,
+                    startTimestamp = startTs,
+                    endTimestamp = endTs,
+                    durationSec = durationSec
+                )
                 tripDao.update(updatedTrip)
             }
 
@@ -203,6 +222,19 @@ fun RecordingScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 添加位置笔记
+            ElevatedButton(
+                onClick = {
+                    noteText = ""
+                    showNoteDialog = true
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("添加位置笔记")
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             // 停止按钮
@@ -225,6 +257,28 @@ fun RecordingScreen(
             }
         }
     }
+
+    // 笔记输入对话框（内联）
+    RecordingNoteDialog(
+        show = showNoteDialog,
+        noteText = noteText,
+        onTextChange = { noteText = it },
+        onDismiss = { showNoteDialog = false },
+        onSave = {
+            val lastPoint = recordedLocations.lastOrNull()
+            val lat = lastPoint?.latitude ?: currentLocation?.latitude
+            val lng = lastPoint?.longitude ?: currentLocation?.longitude
+            val note = Note(
+                tripId = tripId,
+                locationPointId = lastPoint?.id,
+                text = noteText,
+                latitude = lat,
+                longitude = lng
+            )
+            scope.launch { noteDao.insert(note) }
+            showNoteDialog = false
+        }
+    )
 }
 
 /**
@@ -411,4 +465,30 @@ private fun PermissionRequestBlock(onRequest: () -> Unit) {
             Button(onClick = onRequest) { Text("授予定位权限") }
         }
     }
+}
+
+// 内联弹窗：添加位置笔记
+@Composable
+private fun RecordingNoteDialog(
+    show: Boolean,
+    noteText: String,
+    onTextChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onSave: () -> Unit
+) {
+    if (!show) return
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("添加笔记") },
+        text = {
+            OutlinedTextField(
+                value = noteText,
+                onValueChange = onTextChange,
+                label = { Text("内容") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = { TextButton(onClick = onSave) { Text("保存") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+    )
 }

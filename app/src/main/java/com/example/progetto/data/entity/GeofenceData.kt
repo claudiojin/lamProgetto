@@ -16,7 +16,7 @@ data class GeofenceArea(
     val name: String,              // 地点名称（如"家"、"公司"）
     val latitude: Double,          // 中心点纬度
     val longitude: Double,         // 中心点经度
-    val radius: Float = 200f,      // 半径（米）
+    val radius: Float = 500f,      // 半径（米）
     val isActive: Boolean = true,  // 是否启用
     val createdAt: Long = System.currentTimeMillis()
 )
