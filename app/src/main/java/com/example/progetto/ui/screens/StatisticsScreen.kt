@@ -64,7 +64,6 @@ fun StatisticsScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 FloatingActionButton(
                     onClick = {
-                        // 测试发送通知
                         NotificationHelper.sendTripReminderNotification(
                             context = context,
                             title = "Prova di notifica",

@@ -148,7 +148,8 @@ fun TravelCompanionApp(database: TripDatabase) {
                 TripListScreen(
                     tripDao = database.tripDao(),
                     modifier = Modifier.padding(innerPadding),
-                    onTripClick = { _ ->
+                    onTripClick = { tripId ->
+                        selectedTripId = tripId
                         currentScreen = Screen.TripDetail
                     }
                 )

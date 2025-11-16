@@ -81,7 +81,7 @@
     <string name="edit_notes">Modifica Note</string>
     <string name="travel_notes">Note di Viaggio</string>
     <string name="record_your_travel_stories">Registra le tue storie di viaggio...</string>
-    <string name="character_count">Conteggio caratteri: </string>
+<!--    <string name="character_count">Conteggio caratteri: </string>-->
 
     <!-- Geofence Manager Screen -->
     <string name="geofence_management">Gestione Recinzione Geografica</string>

@@ -173,7 +173,7 @@ fun TripListScreen(
             }
 
             FloatingActionButton(
-                onClick = { },
+                onClick = { showAddScreen = true },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
