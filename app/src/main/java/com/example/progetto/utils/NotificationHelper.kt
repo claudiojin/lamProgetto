@@ -14,37 +14,30 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.progetto.MainActivity
 import com.example.progetto.R
 
-/**
- * 通知助手
- * 封装通知的创建和发送
- */
+
 object NotificationHelper {
 
     // 通知渠道ID
     private const val CHANNEL_ID = "travel_companion_channel"
-    private const val CHANNEL_NAME = "旅行提醒"
-    private const val CHANNEL_DESCRIPTION = "旅行记录和提醒通知"
+    private const val CHANNEL_NAME = "travel_companion_channel_name"
+    private const val CHANNEL_DESCRIPTION = "travel_companion_channel_desc"
 
     // 通知ID
     const val TRIP_REMINDER_NOTIFICATION_ID = 1001
     const val GEOFENCE_NOTIFICATION_ID = 1002
     const val TRACKING_NOTIFICATION_ID = 1003
 
-    /**
-     * 创建通知渠道（Android 8.0+需要）
-     *
-     * 类比Web：这像是注册Service Worker
-     */
+
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                CHANNEL_NAME,
+
+                context.getString(R.string.notification_channel_name),
                 importance
             ).apply {
-                description = CHANNEL_DESCRIPTION
-                // 可选：设置通知声音、震动等
+                description = context.getString(R.string.notification_channel_desc)
                 enableVibration(true)
                 enableLights(true)
             }
@@ -54,9 +47,7 @@ object NotificationHelper {
         }
     }
 
-    /**
-     * 检查通知权限（Android 13+需要）
-     */
+
     fun hasNotificationPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.checkSelfPermission(
@@ -68,23 +59,16 @@ object NotificationHelper {
         }
     }
 
-    /**
-     * 发送旅行提醒通知
-     *
-     * @param context 上下文
-     * @param title 通知标题
-     * @param message 通知内容
-     */
+
     fun sendTripReminderNotification(
         context: Context,
         title: String,
         message: String
     ) {
         if (!hasNotificationPermission(context)) {
-            return  // 没有权限，不发送
+            return
         }
 
-        // 创建点击通知后打开应用的Intent
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -96,29 +80,25 @@ object NotificationHelper {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        // 构建通知
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)  // 通知图标
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
-            .setAutoCancel(true)  // 点击后自动消失
+            .setAutoCancel(true)
             .build()
 
-        // 发送通知
         try {
             with(NotificationManagerCompat.from(context)) {
                 notify(TRIP_REMINDER_NOTIFICATION_ID, notification)
             }
         } catch (se: SecurityException) {
-            // 权限可能被拒绝，避免崩溃
+
         }
     }
 
-    /**
-     * 发送地理围栏通知
-     */
+
     fun sendGeofenceNotification(
         context: Context,
         title: String,
@@ -143,10 +123,10 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)  // 高优先级
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .setVibrate(longArrayOf(0, 500, 200, 500))  // 震动模式
+            .setVibrate(longArrayOf(0, 500, 200, 500))
             .build()
 
         try {
@@ -154,16 +134,16 @@ object NotificationHelper {
                 notify(GEOFENCE_NOTIFICATION_ID, notification)
             }
         } catch (se: SecurityException) {
-            // 权限可能被拒绝，避免崩溃
         }
     }
 
-    /**
-     * 构建前台服务的持续通知（用于后台定位）
-     */
-    fun buildTrackingNotification(context: Context, title: String = "正在记录旅程", message: String = "应用正在后台记录位置信息"):
+
+    fun buildTrackingNotification(
+        context: Context,
+        title: String = "Registrazione in corso",
+        message: String = "L'app sta registrando la posizione in background"
+    ):
             android.app.Notification {
-        // 点击通知回到应用
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }

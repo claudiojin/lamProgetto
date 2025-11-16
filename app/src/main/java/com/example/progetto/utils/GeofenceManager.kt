@@ -14,20 +14,14 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 
-/**
- * 地理围栏管理器
- *
- * 负责添加、删除和管理地理围栏
- */
+
 class GeofenceManager(private val context: Context) {
 
     private val TAG = "GeofenceManager"
 
-    // Geofencing客户端
     private val geofencingClient: GeofencingClient =
         LocationServices.getGeofencingClient(context)
 
-    // PendingIntent（用于接收围栏事件）
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
         PendingIntent.getBroadcast(
@@ -38,9 +32,7 @@ class GeofenceManager(private val context: Context) {
         )
     }
 
-    /**
-     * 检查位置权限
-     */
+
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -48,77 +40,66 @@ class GeofenceManager(private val context: Context) {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    /**
-     * 添加地理围栏
-     *
-     * @param geofenceArea 围栏区域
-     */
+
     fun addGeofence(geofenceArea: GeofenceArea) {
         if (!hasLocationPermission()) {
-            Log.e(TAG, "❌ 没有位置权限，无法添加围栏")
+            Log.e(TAG, "❌ Non hai i permessi per la geolocalizzazione")
             return
         }
 
-        // 1. 创建Geofence对象
         val geofence = Geofence.Builder()
-            .setRequestId(geofenceArea.id.toString())  // 唯一ID
+            .setRequestId(geofenceArea.id.toString())
             .setCircularRegion(
                 geofenceArea.latitude,
                 geofenceArea.longitude,
                 geofenceArea.radius
             )
-            .setExpirationDuration(Geofence.NEVER_EXPIRE)  // 永不过期
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setTransitionTypes(
-                Geofence.GEOFENCE_TRANSITION_ENTER or  // 进入
-                        Geofence.GEOFENCE_TRANSITION_EXIT      // 离开
+                Geofence.GEOFENCE_TRANSITION_ENTER or
+                        Geofence.GEOFENCE_TRANSITION_EXIT
             )
             .build()
 
-        // 2. 创建GeofencingRequest
         val geofencingRequest = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)  // 初始触发
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .addGeofence(geofence)
             .build()
 
-        // 3. 添加到系统
         try {
             geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
                 addOnSuccessListener {
-                    Log.d(TAG, "✅ 围栏添加成功: ${geofenceArea.name}")
+                    Log.d(TAG, "✅ Aggiunta con successo: ${geofenceArea.name}")
                 }
                 addOnFailureListener { e ->
-                    Log.e(TAG, "❌ 围栏添加失败: ${e.message}")
+                    Log.e(TAG, "❌ Aggiunta fallita: ${e.message}")
                 }
             }
         } catch (e: SecurityException) {
-            Log.e(TAG, "❌ 安全异常: ${e.message}")
+            Log.e(TAG, "❌ Errore di sicurezza: ${e.message}")
         }
     }
 
-    /**
-     * 移除地理围栏
-     */
+
     fun removeGeofence(geofenceId: Long) {
         geofencingClient.removeGeofences(listOf(geofenceId.toString())).run {
             addOnSuccessListener {
-                Log.d(TAG, "✅ 围栏移除成功: $geofenceId")
+                Log.d(TAG, "✅ Rimozione avvenuta con successo: $geofenceId")
             }
             addOnFailureListener { e ->
-                Log.e(TAG, "❌ 围栏移除失败: ${e.message}")
+                Log.e(TAG, "❌ Rimozione fallita: ${e.message}")
             }
         }
     }
 
-    /**
-     * 移除所有地理围栏
-     */
+
     fun removeAllGeofences() {
         geofencingClient.removeGeofences(geofencePendingIntent).run {
             addOnSuccessListener {
-                Log.d(TAG, "✅ 所有围栏已移除")
+                Log.d(TAG, "✅ Tutti sono rimossi")
             }
             addOnFailureListener { e ->
-                Log.e(TAG, "❌ 移除围栏失败: ${e.message}")
+                Log.e(TAG, "❌ Rimozione fallita: ${e.message}")
             }
         }
     }

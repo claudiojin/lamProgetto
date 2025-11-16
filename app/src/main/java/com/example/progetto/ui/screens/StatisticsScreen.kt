@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.progetto.R
 import com.example.progetto.data.dao.TripDao
 import com.example.progetto.data.entity.Trip
 import com.example.progetto.data.entity.TripType
@@ -50,15 +52,14 @@ fun StatisticsScreen(
 
         topBar = {
             TopAppBar(
-                title = { Text("旅行统计") },
+                title = { Text(stringResource(R.string.travel_statistics)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
         },
-        // 测试按钮区域：通知 + 触发Worker
         floatingActionButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 FloatingActionButton(
@@ -66,20 +67,19 @@ fun StatisticsScreen(
                         // 测试发送通知
                         NotificationHelper.sendTripReminderNotification(
                             context = context,
-                            title = "测试通知",
-                            message = "通知功能正常工作！"
+                            title = "Prova di notifica",
+                            message = "Norifica funziona!！"
                         )
                     }
                 ) {
                     Icon(
                         imageVector = androidx.compose.material.icons.Icons.Default.Notifications,
-                        contentDescription = "测试通知"
+                        contentDescription = stringResource(R.string.test_notification)
                     )
                 }
 
                 FloatingActionButton(
                     onClick = {
-                        // 立刻触发一次提醒Worker
                         val req = OneTimeWorkRequestBuilder<TripReminderWorker>()
                             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                             .setInputData(workDataOf("forceNotify" to true))
@@ -92,7 +92,7 @@ fun StatisticsScreen(
                 ) {
                     Icon(
                         imageVector = androidx.compose.material.icons.Icons.Filled.PlayArrow,
-                        contentDescription = "运行Worker"
+                        contentDescription = stringResource(R.string.run_worker)
                     )
                 }
             }
@@ -113,11 +113,11 @@ fun StatisticsScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "暂无统计数据",
+                        text = stringResource(R.string.no_statistics_data),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "开始记录旅行后，这里会显示统计图表",
+                        text = stringResource(R.string.start_recording_statistics),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -155,8 +155,8 @@ private fun StatisticsContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         ChartCard(
-            title = "每月旅行次数",
-            subtitle = "最近6个月"
+            title = stringResource(R.string.monthly_trip_count),
+            subtitle = stringResource(R.string.last_6_months)
         ) {
             MonthlyTripCountChart(monthlyCount = monthlyCount)
         }
@@ -164,8 +164,8 @@ private fun StatisticsContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         ChartCard(
-            title = "每月旅行距离",
-            subtitle = "单位：公里"
+            title = stringResource(R.string.monthly_distance),
+            subtitle = stringResource(R.string.unit_km)
         ) {
             MonthlyDistanceChart(monthlyDistance = monthlyDistance)
         }
@@ -173,8 +173,8 @@ private fun StatisticsContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         ChartCard(
-            title = "旅行类型分布",
-            subtitle = "总共${trips.size}次旅行"
+            title = stringResource(R.string.trip_type_distribution),
+            subtitle = stringResource(R.string.total_trips_count, trips.size)
         ) {
             TripTypeDistributionChart(distribution = typeDistribution)
         }
@@ -193,7 +193,7 @@ private fun TotalStatsCard(stats: StatisticsHelper.TotalStats) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "总览",
+                text = stringResource(R.string.overview),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -204,9 +204,9 @@ private fun TotalStatsCard(stats: StatisticsHelper.TotalStats) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                StatItem(label = "总旅行", value = "${stats.totalTrips}次")
-                StatItem(label = "总距离", value = String.format("%.1f km", stats.totalDistance))
-                StatItem(label = "平均距离", value = String.format("%.1f km", stats.averageDistance))
+                StatItem(label = stringResource(R.string.total_trips), value = stringResource(R.string.count_unit, stats.totalTrips))
+                StatItem(label = stringResource(R.string.total_distance), value = String.format("%.1f km", stats.totalDistance))
+                StatItem(label = stringResource(R.string.average_distance), value = String.format("%.1f km", stats.averageDistance))
             }
 
             stats.longestTrip?.let {
@@ -214,7 +214,7 @@ private fun TotalStatsCard(stats: StatisticsHelper.TotalStats) {
                 Divider()
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "🏆 最长旅程: ${it.destination} (${String.format("%.1f", it.distance)} km)",
+                    text = stringResource(R.string.longest_journey, it.destination, it.distance),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -254,9 +254,7 @@ private fun ChartCard(
     }
 }
 
-/**
- * 每月旅行次数柱状图（Vico 2.x）
- */
+
 @Composable
 private fun MonthlyTripCountChart(monthlyCount: Map<String, Int>) {
     val recentMonths = StatisticsHelper.getRecentMonths(6)
@@ -264,7 +262,7 @@ private fun MonthlyTripCountChart(monthlyCount: Map<String, Int>) {
 
     if (data.all { it == 0.0 }) {
         Text(
-            text = "最近6个月暂无数据",
+            text = stringResource(R.string.no_data_last_6_months),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(32.dp)
@@ -293,9 +291,7 @@ private fun MonthlyTripCountChart(monthlyCount: Map<String, Int>) {
     )
 }
 
-/**
- * 每月旅行距离折线图（Vico 2.x）
- */
+
 @Composable
 private fun MonthlyDistanceChart(monthlyDistance: Map<String, Double>) {
     val recentMonths = StatisticsHelper.getRecentMonths(6)
@@ -303,7 +299,7 @@ private fun MonthlyDistanceChart(monthlyDistance: Map<String, Double>) {
 
     if (data.all { it == 0.0 }) {
         Text(
-            text = "最近6个月暂无数据",
+            text = stringResource(R.string.no_data_last_6_months),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(32.dp)
@@ -357,7 +353,7 @@ private fun TripTypeBar(type: TripType, count: Int, percentage: Float) {
         ) {
             Text(text = type.displayName, style = MaterialTheme.typography.bodyMedium)
             Text(
-                text = "${count}次 (${String.format("%.1f", percentage)}%)",
+                text = stringResource(R.string.count_unit, count) + " " + stringResource(R.string.percentage, percentage),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

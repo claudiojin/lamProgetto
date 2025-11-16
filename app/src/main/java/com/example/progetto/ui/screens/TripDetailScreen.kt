@@ -10,6 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.progetto.R
 import androidx.compose.ui.unit.dp
 import com.example.progetto.data.dao.LocationDao
 import com.example.progetto.data.dao.PhotoDao
@@ -27,22 +29,19 @@ fun TripDetailScreen(
     tripId: Long,
     tripDao: TripDao,
     locationDao: LocationDao,
-    photoDao: PhotoDao,  // ✅ 照片
-    noteDao: NoteDao,    // ✅ 位置笔记
+    photoDao: PhotoDao,
+    noteDao: NoteDao,
     onNavigateBack: () -> Unit,
     onStartRecording: (Long) -> Unit,
-    onNavigateToPhotos: (Long, String) -> Unit,  // ✅ 新增参数
-    onNavigateToNotes: (Long) -> Unit  // ✅ 新增参数
+    onNavigateToPhotos: (Long, String) -> Unit,
+    onNavigateToNotes: (Long) -> Unit
 ) {
     var trip by remember { mutableStateOf<Trip?>(null) }
     val locations by locationDao.getLocationsByTripId(tripId)
         .collectAsState(initial = emptyList())
 
-    // ✅ 获取照片数量
     var photoCount by remember { mutableStateOf(0) }
-    // ✅ 订阅照片列表以用于地图标记
     val photos by photoDao.getPhotosByTripId(tripId).collectAsState(initial = emptyList())
-    // ✅ 订阅位置笔记
     val notes by noteDao.getNotesByTripId(tripId).collectAsState(initial = emptyList())
 
     LaunchedEffect(tripId) {
@@ -55,10 +54,10 @@ fun TripDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(trip?.destination ?: "加载中...") },
+                title = { Text(trip?.destination ?: stringResource(R.string.loading)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -84,12 +83,10 @@ fun TripDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // ✅ 照片和笔记快捷入口
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // 照片按钮
                         OutlinedButton(
                             onClick = {
                                 onNavigateToPhotos(tripId, trip?.destination ?: "旅行")
@@ -102,10 +99,9 @@ fun TripDetailScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("照片 ($photoCount)")
+                            Text(stringResource(R.string.photos_count, photoCount))
                         }
 
-                        // 笔记按钮
                         OutlinedButton(
                             onClick = {
                                 onNavigateToNotes(tripId)
@@ -118,7 +114,7 @@ fun TripDetailScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("笔记")
+                            Text(stringResource(R.string.notes))
                         }
                     }
 
@@ -131,7 +127,7 @@ fun TripDetailScreen(
                         )
                     } else {
                         Text(
-                            text = "还没有GPS记录",
+                            text = stringResource(R.string.no_gps_records),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -150,13 +146,12 @@ fun TripDetailScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (locations.isEmpty()) "开始记录旅程" else "继续记录"
+                            text = if (locations.isEmpty()) stringResource(R.string.start_recording_journey) else stringResource(R.string.continue_recording)
                         )
                     }
                 }
 
                 if (locations.isNotEmpty()) {
-                    // 从带位置的照片构造地图标记点
                     val photoPoints: List<Pair<Double, Double>> = photos.mapNotNull { p ->
                         if (p.latitude != null && p.longitude != null) Pair(p.latitude!!, p.longitude!!) else null
                     }
@@ -173,7 +168,7 @@ fun TripDetailScreen(
                     ) {
                         Column {
                             Text(
-                                text = "路线轨迹",
+                                text = stringResource(R.string.route_track),
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(16.dp)
                             )
@@ -190,11 +185,10 @@ fun TripDetailScreen(
                     }
                 }
 
-                // 位置笔记列表（简版）
                 if (notes.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "位置笔记",
+                        text = stringResource(R.string.location_notes),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -255,26 +249,25 @@ private fun TripInfoCard(trip: Trip) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "${trip.startDate} 至 ${trip.endDate}",
+                text = stringResource(R.string.date_range, trip.startDate, trip.endDate),
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            // 起止时间与时长展示（若有）
             if (trip.startTimestamp != null || trip.endTimestamp != null || trip.durationSec != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 val startStr = trip.startTimestamp?.let { ts -> formatDateTime(ts) } ?: "-"
                 val endStr = trip.endTimestamp?.let { ts -> formatDateTime(ts) } ?: "-"
                 val durStr = trip.durationSec?.let { ds -> formatDuration(ds) } ?: "-"
                 Text(
-                    text = "开始: $startStr",
+                    text = "${stringResource(R.string.start)}: $startStr",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "结束: $endStr",
+                    text = "${stringResource(R.string.end)}: $endStr",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "时长: $durStr",
+                    text = "${stringResource(R.string.duration)}: $durStr",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -293,7 +286,7 @@ private fun TripInfoCard(trip: Trip) {
 
 private fun formatDateTime(ts: Long): String {
     return try {
-        java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+        java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.ITALY)
             .format(java.util.Date(ts))
     } catch (e: Exception) { "-" }
 }
@@ -324,7 +317,7 @@ private fun GpsStatsCard(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "GPS点",
+                    text = stringResource(R.string.gps_points),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -336,7 +329,7 @@ private fun GpsStatsCard(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "公里",
+                    text = stringResource(R.string.kilometers),
                     style = MaterialTheme.typography.bodySmall
                 )
             }

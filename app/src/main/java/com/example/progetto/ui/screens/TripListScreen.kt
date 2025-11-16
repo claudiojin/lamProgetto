@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.progetto.data.dao.TripDao
 import com.example.progetto.data.entity.Trip
@@ -41,15 +42,12 @@ import com.example.progetto.data.entity.TripType
 import com.example.progetto.ui.components.DeleteConfirmDialog
 import com.example.progetto.ui.components.TripCard
 import kotlinx.coroutines.launch
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.example.progetto.R
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
@@ -58,7 +56,6 @@ fun TripListScreen(
     modifier: Modifier = Modifier,
     onTripClick: (Long) -> Unit = {}
 ) {
-    // 从数据库获取数据（Flow自动更新）
     val trips by tripDao.getAllTrips().collectAsState(initial = emptyList())
     var searchQuery by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf<TripType?>(null) }
@@ -103,21 +100,18 @@ fun TripListScreen(
                     .fillMaxSize()
                     .padding(0.dp)
             ) {
-                // 官方 API 请求通知权限（Android 13+）
                 NotificationPermissionBanner()
 
-                // 标题
                 Text(
-                    text = "我的旅行",
+                    text = stringResource(R.string.my_trips),
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
                 )
 
-                // 搜索与筛选
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    label = { Text("搜索目的地") },
+                    label = { Text(stringResource(R.string.search_destination)) },
                     singleLine = true,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -150,14 +144,13 @@ fun TripListScreen(
                     (selectedType == null || trip.type == selectedType)
                 }
 
-                // 旅行列表
                 if (trips.isEmpty()) {
-                    // 空状态
+
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("暂无旅行记录")
+                        Text(stringResource(R.string.no_trips))
                     }
                 } else {
                     LazyColumn {
@@ -179,16 +172,15 @@ fun TripListScreen(
                 }
             }
 
-            // 悬浮添加按钮（真正悬浮，不占用布局）
             FloatingActionButton(
-                onClick = { showAddScreen = true },
+                onClick = { },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Trip"
+                    contentDescription = stringResource(R.string.add_trip)
                 )
             }
         }
@@ -227,20 +219,19 @@ private fun NotificationPermissionBanner() {
         if (!isGranted) {
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
-                onResult = { /* 可选：根据授权结果提示 */ }
+                onResult = {  }
             )
 
-            // 简单按钮提示授权（不在服务或后台触发请求）
             Button(
                 onClick = { launcher.launch(Manifest.permission.POST_NOTIFICATIONS) },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Notifications,
-                    contentDescription = "通知"
+                    contentDescription = stringResource(R.string.notifications)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "启用通知")
+                Text(text = stringResource(R.string.enable_notifications))
             }
         }
     }

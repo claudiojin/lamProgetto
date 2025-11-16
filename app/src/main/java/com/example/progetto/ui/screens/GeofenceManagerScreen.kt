@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.progetto.R
 import com.example.progetto.data.dao.GeofenceDao
 import com.example.progetto.data.entity.GeofenceArea
 import com.example.progetto.data.entity.GeofenceEvent
@@ -34,9 +36,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.CameraPosition
 import kotlinx.coroutines.launch
 
-/**
- * 地理围栏管理界面
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeofenceManagementScreen(
@@ -54,17 +54,17 @@ fun GeofenceManagementScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("地理围栏管理") },
+                title = { Text(stringResource(R.string.geofence_management)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "添加围栏")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_geofence))
             }
         }
     ) { padding ->
@@ -77,7 +77,7 @@ fun GeofenceManagementScreen(
             // Geofence section header
             item {
                 Text(
-                    text = "我的围栏 (${geofences.size})",
+                    text = stringResource(R.string.my_geofences, geofences.size),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(Modifier.height(8.dp))
@@ -88,9 +88,9 @@ fun GeofenceManagementScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                         Text("🌍", style = MaterialTheme.typography.displayLarge)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("还没有设置地理围栏")
+                        Text(stringResource(R.string.no_geofences_yet))
                         Text(
-                            "点击右下角+按钮添加常去地点",
+                            stringResource(R.string.add_geofence_click),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -118,13 +118,13 @@ fun GeofenceManagementScreen(
                 Divider()
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = "最近事件",
+                    text = stringResource(R.string.recent_events),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(Modifier.height(8.dp))
                 if (recentEvents.isEmpty()) {
                     Text(
-                        text = "暂无围栏进入/离开记录",
+                        text = stringResource(R.string.no_geofence_records),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -182,12 +182,12 @@ private fun GeofenceCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "半径: ${geofence.radius.toInt()}米",
+                    text = stringResource(R.string.radius_meters, geofence.radius.toInt()),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = String.format(
-                        "位置: %.4f, %.4f",
+                    text = stringResource(
+                        R.string.location_coords,
                         geofence.latitude,
                         geofence.longitude
                     ),
@@ -199,7 +199,7 @@ private fun GeofenceCard(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "删除",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -222,8 +222,7 @@ private fun AddGeofenceDialog(
     var radius by remember { mutableStateOf("500") }
     var error by remember { mutableStateOf<String?>(null) }
     var locating by remember { mutableStateOf(false) }
-    // 地图中心，初始北京
-    var mapCenter by remember { mutableStateOf(LatLng(39.9042, 116.4074)) }
+    var mapCenter by remember { mutableStateOf(LatLng(9.18646 , 45.47825)) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -231,26 +230,25 @@ private fun AddGeofenceDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("添加地理围栏") },
+        title = { Text(stringResource(R.string.add_geofence)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("地点名称") },
-                    placeholder = { Text("如：家、公司") },
+                    label = { Text(stringResource(R.string.place_name)) },
+                    placeholder = { Text(stringResource(R.string.place_name_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // 定位与结果展示
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = if (lat != null && lng != null)
-                                String.format("选择位置：%.5f, %.5f", lat, lng)
-                            else "未选择位置",
+                                stringResource(R.string.select_position) + "：%.5f, %.5f".format(lat, lng)
+                            else stringResource(R.string.position_not_selected),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -285,7 +283,7 @@ private fun AddGeofenceDialog(
                                         // 更新地图中心
                                         mapCenter = LatLng(loc.latitude, loc.longitude)
                                     } else {
-                                        error = "无法获取当前位置，请稍后重试"
+                                        error = context.getString(com.example.progetto.R.string.unable_get_location)
                                     }
                                 } finally {
                                     locating = false
@@ -298,7 +296,7 @@ private fun AddGeofenceDialog(
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                             Spacer(Modifier.width(8.dp))
                         }
-                        Text("使用当前位置")
+                        Text(stringResource(R.string.use_current_location))
                     }
                 }
 
@@ -309,13 +307,11 @@ private fun AddGeofenceDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // 地图点选位置
                 var mapInitialized by remember { mutableStateOf(false) }
                 val cameraPositionState = rememberCameraPositionState {
                     position = CameraPosition.fromLatLngZoom(mapCenter, 15f)
                 }
 
-                // 当用户选择位置时，平滑移动相机
                 LaunchedEffect(lat, lng) {
                     val lt = lat; val lg = lng
                     if (lt != null && lg != null) {
@@ -342,7 +338,7 @@ private fun AddGeofenceDialog(
                     val rMeters = radius.toFloatOrNull() ?: 500f
                     if (lat != null && lng != null) {
                         val pos = LatLng(lat!!, lng!!)
-                        Marker(state = com.google.maps.android.compose.MarkerState(pos), title = name.ifBlank { "围栏中心" })
+                        Marker(state = com.google.maps.android.compose.MarkerState(pos), title = name.ifBlank { stringResource(R.string.select_position) })
                         Circle(
                             center = pos,
                             radius = rMeters.toDouble(),
@@ -358,8 +354,8 @@ private fun AddGeofenceDialog(
                 OutlinedTextField(
                     value = radius,
                     onValueChange = { radius = it },
-                    label = { Text("半径(米)") },
-                    supportingText = { Text("默认500米，可自定义") },
+                    label = { Text(stringResource(R.string.radius_meters_label)) },
+                    supportingText = { Text(stringResource(R.string.default_radius_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -373,12 +369,12 @@ private fun AddGeofenceDialog(
                     if (name.isNotBlank()) onConfirm(name, latV, lngV, rad)
                 }
             ) {
-                Text("添加")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -391,7 +387,7 @@ private fun GeofenceEventRow(
     timestamp: Long
 ) {
     val isEnter = type.equals("ENTER", ignoreCase = true)
-    val typeLabel = if (isEnter) "进入" else if (type.equals("EXIT", true)) "离开" else type
+    val typeLabel = if (isEnter) stringResource(R.string.enter) else if (type.equals("EXIT", true)) stringResource(R.string.exit) else type
     val typeColor = if (isEnter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
     val timeStr = remember(timestamp) {
         try {

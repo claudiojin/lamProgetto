@@ -1,3 +1,172 @@
 <resources>
     <string name="app_name">Progetto</string>
+
+    <!-- Navigation -->
+    <string name="nav_trips">Viaggi</string>
+    <string name="nav_history_map">Mappa Storica</string>
+    <string name="nav_geofence">Recinzione</string>
+    <string name="nav_statistics">Statistiche</string>
+
+    <!-- Trip List Screen -->
+    <string name="my_trips">I Miei Viaggi</string>
+    <string name="search_destination">Cerca destinazione</string>
+    <string name="no_trips">Nessun record di viaggio</string>
+    <string name="add_trip">Aggiungi Viaggio</string>
+    <string name="enable_notifications">Abilita Notifiche</string>
+    <string name="notifications">Notifiche</string>
+    <string name="notification_channel_name">Promemoria viaggi</string>
+    <string name="notification_channel_desc">Notifiche di registrazione viaggi e geofence</string>
+
+    <!-- Trip Types -->
+    <string name="trip_type_local">Locale</string>
+    <string name="trip_type_day_trip">Gita di un giorno</string>
+    <string name="trip_type_multi_day">Viaggio di più giorni</string>
+
+    <!-- Trip Form Screen -->
+    <string name="add_new_trip">Aggiungi Nuovo Viaggio</string>
+    <string name="edit_trip">Modifica Viaggio</string>
+    <string name="destination">Destinazione</string>
+    <string name="trip_type_label">Tipo di Viaggio</string>
+    <string name="distance_km">Distanza (km, opzionale)</string>
+    <string name="notes_optional">Note (opzionale)</string>
+    <string name="save">Salva</string>
+    <string name="back">Indietro</string>
+
+    <!-- Trip Detail Screen -->
+    <string name="loading">Caricamento...</string>
+    <string name="route_track">Traccia del Percorso</string>
+    <string name="no_gps_records">Nessun record GPS ancora</string>
+    <string name="start_recording_journey">Inizia a Registrare il Viaggio</string>
+    <string name="continue_recording">Continua a Registrare</string>
+    <string name="photos">Foto</string>
+    <string name="photos_count">Foto</string>
+    <string name="notes">Note</string>
+    <string name="location_notes">Note sulla Posizione</string>
+    <string name="start">Inizio</string>
+    <string name="end">Fine</string>
+    <string name="duration">Durata</string>
+    <string name="gps_points">Punti GPS</string>
+    <string name="kilometers">chilometri</string>
+
+    <!-- Recording Screen -->
+    <string name="recording">Registrazione...</string>
+    <string name="recording_gps_track">Registrazione traccia GPS</string>
+    <string name="real_time_location">Posizione in Tempo Reale</string>
+    <string name="add_location_note">Aggiungi Nota sulla Posizione</string>
+    <string name="stop_recording">Ferma la Registrazione</string>
+    <string name="time_duration">Durata</string>
+    <string name="speed">Velocità</string>
+    <string name="current_location">Posizione Attuale</string>
+    <string name="need_location_permission">È necessario il permesso di localizzazione per iniziare a registrare</string>
+    <string name="grant_location_permission">Concedi Permesso di Localizzazione</string>
+    <!-- tracking notification text hardcoded in code -->
+    <string name="add_note">Aggiungi Nota</string>
+    <string name="content">Contenuto</string>
+    <string name="cancel">Annulla</string>
+
+    <!-- Photo Gallery Screen -->
+    <string name="photos_title">Foto</string>
+    <string name="no_photos_yet">Nessuna foto aggiunta ancora</string>
+    <string name="add_photo_click">Clicca sul pulsante + in basso a destra per aggiungere foto</string>
+    <string name="take_photo">Scatta Foto</string>
+    <string name="add_photo">Aggiungi Foto</string>
+    <string name="photo_details">Dettagli Foto</string>
+    <string name="photo_time">Orario di scatto</string>
+    <string name="close">Chiudi</string>
+    <string name="delete">Elimina</string>
+    <string name="confirm_delete">Conferma Eliminazione</string>
+    <string name="confirm_delete_photo">Sei sicuro di voler eliminare questa foto?</string>
+
+    <!-- Notes Editor Screen -->
+    <string name="edit_notes">Modifica Note</string>
+    <string name="travel_notes">Note di Viaggio</string>
+    <string name="record_your_travel_stories">Registra le tue storie di viaggio...</string>
+    <string name="character_count">Conteggio caratteri: </string>
+
+    <!-- Geofence Manager Screen -->
+    <string name="geofence_management">Gestione Recinzione Geografica</string>
+    <string name="my_geofences">Le Mie Recinzioni</string>
+    <string name="no_geofences_yet">Nessuna recinzione geografica impostata</string>
+    <string name="add_geofence_click">Clicca sul pulsante + in basso a destra per aggiungere luoghi frequenti</string>
+    <string name="add_geofence">Aggiungi Recinzione</string>
+    <string name="recent_events">Eventi Recenti</string>
+    <string name="no_geofence_records">Nessun record di ingresso/uscita dalla recinzione</string>
+    <string name="radius_meters">Raggio:  metri</string>
+    <string name="location_coords">Posizione: %1$.4f, %2$.4f</string>
+    <string name="place_name">Nome del Luogo</string>
+    <string name="place_name_hint">es: casa, ufficio</string>
+    <string name="select_position">Seleziona Posizione</string>
+    <string name="position_not_selected">Posizione non selezionata</string>
+    <string name="use_current_location">Usa Posizione Attuale</string>
+    <string name="radius_meters_label">Raggio(metri)</string>
+    <string name="default_radius_hint">Predefinito 500 metri, personalizzabile</string>
+    <string name="add">Aggiungi</string>
+    <string name="enter">Entra</string>
+    <string name="exit">Esci</string>
+    <string name="unable_get_location">Impossibile ottenere la posizione attuale, riprova più tardi</string>
+
+    <!-- History Map Screen -->
+    <string name="history_map">Mappa Storica</string>
+    <string name="show_routes">Mostra Percorsi</string>
+    <string name="last_7_days">Ultimi 7 giorni</string>
+    <string name="last_30_days">Ultimi 30 giorni</string>
+    <string name="all">Tutti</string>
+
+    <!-- Statistics Screen -->
+    <string name="travel_statistics">Statistiche di Viaggio</string>
+    <string name="test_notification">Notifica di Test</string>
+    <string name="run_worker">Esegui Worker</string>
+    <string name="no_statistics_data">Nessun dato statistico</string>
+    <string name="start_recording_statistics">Inizia a registrare viaggi, qui verranno mostrati i grafici statistici</string>
+    <string name="overview">Panoramica</string>
+    <string name="total_trips">Viaggi Totali</string>
+    <string name="total_distance">Distanza Totale</string>
+    <string name="average_distance">Distanza Media</string>
+    <string name="longest_journey">Viaggio più lungo: %1$s (%2$.1f km)</string>
+    <string name="monthly_trip_count">Numero Viaggi Mensili</string>
+    <string name="last_6_months">Ultimi 6 mesi</string>
+    <string name="monthly_distance">Distanza Mensile</string>
+    <string name="unit_km">Unità: chilometri</string>
+    <string name="trip_type_distribution">Distribuzione Tipo Viaggio</string>
+    <string name="total_trips_count">Totale %1$d viaggi</string>
+    <string name="no_data_last_6_months">Nessun dato negli ultimi 6 mesi</string>
+    <string name="count_unit">%1$d volte</string>
+    <string name="percentage">(%1$.1f percento)</string>
+
+    <!-- Trip Card -->
+    <string name="date_range">da %1$s a %2$s</string>
+    <string name="distance_label">Distanza</string>
+    <string name="edit">Modifica</string>
+
+    <!-- Common -->
+    <string name="ok">OK</string>
+    <string name="yes">Sì</string>
+    <string name="no">No</string>
+    <string name="confirm">Conferma</string>
+    <string name="dismiss">Ignora</string>
+    <string name="error">Errore</string>
+    <string name="success">Successo</string>
+    <string name="loading_data">Caricamento dati...</string>
+
+    <!-- Permissions -->
+    <string name="permission_notification_granted">Permesso notifica concesso</string>
+    <string name="permission_notification_denied">Permesso notifica negato</string>
+    <string name="permission_already_granted">Permesso notifica già concesso</string>
+    <string name="request_notification_permission">Richiesta permesso notifica</string>
+
+    <!-- Units -->
+    <string name="km_h">%1$.1f km/h</string>
+    <string name="meters">%1$.1f metri</string>
+    <string name="km_unit">km</string>
+
+    <!-- Worker reminders -->
+    <string name="reminder_no_trip_title">Inizia a registrare i viaggi!</string>
+    <string name="reminder_no_trip_message">Non hai ancora registrato alcun viaggio. Comincia ora!</string>
+    <!-- inactive reminder text hardcoded in code -->
+
+    <!-- Geofence notifications -->
+    <string name="geofence_enter_title">Arrivato a %1$s</string>
+    <string name="geofence_enter_message">Ben tornato a %1$s!</string>
+    <string name="geofence_exit_title">Uscito da %1$s</string>
+    <string name="geofence_exit_message">Vuoi iniziare un nuovo viaggio?</string>
 </resources>

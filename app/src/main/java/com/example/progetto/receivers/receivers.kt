@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.progetto.data.database.TripDatabase
+import com.example.progetto.R
 import com.example.progetto.data.entity.GeofenceEvent
 import com.example.progetto.utils.NotificationHelper
 import com.google.android.gms.location.Geofence
@@ -14,52 +15,42 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-/**
- * 地理围栏广播接收器
- *
- * 接收围栏进入/离开事件
- *
- * 类比Web：这是WebSocket消息处理器
- */
+
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     private val TAG = "GeofenceReceiver"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "📡 收到地理围栏事件")
+        Log.d(TAG, "📡 Riceuvto evento di recinto")
 
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
         if (geofencingEvent == null) {
-            Log.e(TAG, "❌ 事件为空")
+            Log.e(TAG, "❌ Evento vuoto")
             return
         }
 
         if (geofencingEvent.hasError()) {
-            Log.e(TAG, "❌ 围栏错误: ${geofencingEvent.errorCode}")
+            Log.e(TAG, "❌ Errore: ${geofencingEvent.errorCode}")
             return
         }
 
-        // 获取触发的围栏列表
+
         val triggeringGeofences = geofencingEvent.triggeringGeofences
         if (triggeringGeofences == null || triggeringGeofences.isEmpty()) {
-            Log.w(TAG, "⚠️ 没有触发的围栏")
+            Log.w(TAG, "⚠️ Non ci sono ")
             return
         }
 
-        // 获取事件类型
         val geofenceTransition = geofencingEvent.geofenceTransition
 
-        // 处理每个触发的围栏
         triggeringGeofences.forEach { geofence ->
             handleGeofenceTransition(context, geofence, geofenceTransition)
         }
     }
 
-    /**
-     * 处理围栏事件
-     */
+
     private fun handleGeofenceTransition(
         context: Context,
         geofence: Geofence,
@@ -69,41 +60,38 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         scope.launch {
             try {
-                // 1. 从数据库获取围栏信息
                 val database = TripDatabase.getDatabase(context)
                 val geofenceDao = database.geofenceDao()
                 val geofenceArea = geofenceDao.getGeofenceById(geofenceId)
 
                 if (geofenceArea == null) {
-                    Log.w(TAG, "⚠️ 找不到围栏: $geofenceId")
+                    Log.w(TAG, "⚠️ Non trovato: $geofenceId")
                     return@launch
                 }
 
-                // 2. 确定事件类型和消息
                 val (eventType, title, message) = when (transitionType) {
                     Geofence.GEOFENCE_TRANSITION_ENTER -> {
                         Triple(
                             "ENTER",
-                            "到达${geofenceArea.name}",
-                            "欢迎回到${geofenceArea.name}！"
+                            context.getString(R.string.geofence_enter_title, geofenceArea.name),
+                            context.getString(R.string.geofence_enter_message, geofenceArea.name)
                         )
                     }
                     Geofence.GEOFENCE_TRANSITION_EXIT -> {
                         Triple(
                             "EXIT",
-                            "离开${geofenceArea.name}",
-                            "要开始新的旅程吗？"
+                            context.getString(R.string.geofence_exit_title, geofenceArea.name),
+                            context.getString(R.string.geofence_exit_message, geofenceArea.name)
                         )
                     }
                     else -> {
-                        Log.w(TAG, "⚠️ 未知事件类型: $transitionType")
+                        Log.w(TAG, "⚠️ Evento tipo sconosciuto: $transitionType")
                         return@launch
                     }
                 }
 
                 Log.d(TAG, "🚪 $eventType: ${geofenceArea.name}")
 
-                // 3. 保存事件到数据库
                 val event = GeofenceEvent(
                     geofenceId = geofenceId,
                     geofenceName = geofenceArea.name,
@@ -111,7 +99,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 )
                 geofenceDao.insertEvent(event)
 
-                // 4. 发送通知
                 NotificationHelper.sendGeofenceNotification(
                     context = context,
                     title = title,
@@ -119,7 +106,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 )
 
             } catch (e: Exception) {
-                Log.e(TAG, "❌ 处理围栏事件失败: ${e.message}", e)
+                Log.e(TAG, "❌ Errore: ${e.message}", e)
             }
         }
     }

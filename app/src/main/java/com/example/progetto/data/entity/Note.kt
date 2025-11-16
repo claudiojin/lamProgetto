@@ -5,9 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * 位置笔记（文本，按时刻/位置）
- */
+
 @Entity(
     tableName = "notes",
     foreignKeys = [

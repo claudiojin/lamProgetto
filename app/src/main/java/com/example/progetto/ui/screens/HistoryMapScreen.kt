@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.progetto.R
 import com.example.progetto.data.dao.LocationDao
 import com.example.progetto.data.dao.TripDao
 import com.example.progetto.data.entity.LocationPoint
@@ -53,7 +55,6 @@ fun HistoryMapScreen(
         position = CameraPosition.fromLatLngZoom(centerLatLng, 12f)
     }
 
-    // 当数据变化时，自动移动相机到数据范围/最后一点
     LaunchedEffect(allPoints) {
         if (selectedTripId != null) return@LaunchedEffect
         if (allPoints.isNotEmpty()) {
@@ -73,7 +74,6 @@ fun HistoryMapScreen(
                     )
                 }
             } catch (_: Exception) {
-                // 某些情况下在布局未完成前会抛异常，退化为简单定位到最后点
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(allPoints.last(), 13f)
             }
         }
@@ -82,10 +82,10 @@ fun HistoryMapScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("历史地图") },
+                title = { Text(stringResource(R.string.history_map)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -96,30 +96,34 @@ fun HistoryMapScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // 过滤与显示选项
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     RangeOption.values().forEach { opt ->
                         FilterChip(
                             selected = range == opt,
                             onClick = { range = opt },
-                            label = { Text(opt.label) }
+                            label = { Text(stringResource(opt.labelResId)) }
                         )
                     }
                 }
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Text("显示轨迹", style = MaterialTheme.typography.bodySmall)
-                    Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    Text(stringResource(R.string.show_routes), style = MaterialTheme.typography.bodySmall)
                     Switch(checked = showRoutes, onCheckedChange = { showRoutes = it })
                 }
             }
 
-            // 地图
             GoogleMap(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,8 +153,6 @@ fun HistoryMapScreen(
                             geodesic = true
                         )
                     }
-
-                    // 轨迹点散点（小样式）
                     if (!showRoutes) {
                         points.forEach { p ->
                             Circle(
@@ -165,7 +167,6 @@ fun HistoryMapScreen(
                 }
             }
 
-            // 简易图例（最多显示前3个分组）
             if (groups.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 FlowRow(
@@ -226,6 +227,6 @@ fun HistoryMapScreen(
     }
 }
 
-private enum class RangeOption(val label: String, val days: Int?) {
-    WEEK("近7天", 7), MONTH("近30天", 30), ALL("全部", null)
+private enum class RangeOption(val labelResId: Int, val days: Int?) {
+    WEEK(R.string.last_7_days, 7), MONTH(R.string.last_30_days, 30), ALL(R.string.all, null)
 }

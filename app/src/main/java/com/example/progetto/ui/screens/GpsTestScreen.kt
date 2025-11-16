@@ -16,21 +16,14 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * GPS测试界面
- *
- * 类比Web：这是React/Vue组件
- * 负责UI渲染和用户交互
- */
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun GpsTestScreen() {
-    // State（类似React的useState）
     var currentLocation by remember { mutableStateOf<Location?>(null) }
     var isTracking by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Context和工具类
     val context = LocalContext.current
     val locationManager = remember { LocationManager(context) }
     val permissionState = PermissionsHelper.rememberLocationPermissionState()
@@ -43,12 +36,11 @@ fun GpsTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "GPS测试",
+            text = "GPS test",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // 权限状态显示
         when {
             permissionState.allPermissionsGranted -> {
                 PermissionGrantedContent(
@@ -62,14 +54,13 @@ fun GpsTestScreen() {
                                 currentLocation = location
                                 errorMessage = null
                             } else {
-                                errorMessage = "无法获取位置，请确保GPS已开启"
+                                errorMessage = "Controlla i permessi e riprova"
                             }
                         }
                     },
                     onToggleTracking = {
                         isTracking = !isTracking
                         if (isTracking) {
-                            // 开始实时追踪
                             scope.launch {
                                 locationManager.getLocationUpdates(2000).collect { location ->
                                     currentLocation = location
@@ -91,9 +82,7 @@ fun GpsTestScreen() {
     }
 }
 
-/**
- * 权限已授予的内容
- */
+
 @Composable
 private fun PermissionGrantedContent(
     currentLocation: Location?,
@@ -103,17 +92,15 @@ private fun PermissionGrantedContent(
     onToggleTracking: () -> Unit
 ) {
     Text(
-        text = "✅ 位置权限已授予",
+        text = "✅ Gps permesso",
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(bottom = 16.dp)
     )
 
-    // 位置信息卡片
     if (currentLocation != null) {
         LocationInfoCard(location = currentLocation)
     }
 
-    // 操作按钮
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -123,7 +110,7 @@ private fun PermissionGrantedContent(
             modifier = Modifier.weight(1f),
             enabled = !isTracking
         ) {
-            Text("获取位置")
+            Text("Ottieni posisione")
         }
 
         Button(
@@ -141,7 +128,7 @@ private fun PermissionGrantedContent(
         }
     }
 
-    // 错误信息
+
     if (errorMessage != null) {
         Text(
             text = errorMessage,
@@ -150,19 +137,17 @@ private fun PermissionGrantedContent(
         )
     }
 
-    // 追踪状态提示
+
     if (isTracking) {
         Text(
-            text = "🔴 正在实时追踪位置（每2秒更新）",
+            text = "🔴 In monitoraggio (ogni 2 secondi)",
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
 
-/**
- * 位置信息卡片
- */
+
 @Composable
 private fun LocationInfoCard(location: Location) {
     Card(
@@ -172,17 +157,17 @@ private fun LocationInfoCard(location: Location) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "当前位置",
+                text = "Posizione locale",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            Text("纬度: ${location.latitude}")
-            Text("经度: ${location.longitude}")
-            Text("精度: ${location.accuracy} 米")
-            Text("海拔: ${location.altitude} 米")
-            Text("速度: ${location.speed} 米/秒")
+            Text("latitudine: ${location.latitude}")
+            Text("longitudine: ${location.longitude}")
+            Text("precisione: ${location.accuracy} metri")
+            Text("altitudine: ${location.altitude} metri")
+            Text("velocità: ${location.speed} m/s")
             Text(
-                "时间: ${
+                "tempo: ${
                     SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                         .format(Date(location.time))
                 }"
@@ -191,21 +176,19 @@ private fun LocationInfoCard(location: Location) {
     }
 }
 
-/**
- * 权限被拒绝的内容
- */
+
 @Composable
 private fun PermissionDeniedContent(
     onRequestPermission: () -> Unit
 ) {
     Text(
-        text = "❌ 需要位置权限",
+        text = "❌ Serve permesso di GPS",
         color = MaterialTheme.colorScheme.error,
         modifier = Modifier.padding(bottom = 16.dp)
     )
 
     Text(
-        text = "此应用需要访问您的位置来记录旅程路线",
+        text = "Questa app richiede accesso alla posizione",
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(bottom = 16.dp)
@@ -215,6 +198,6 @@ private fun PermissionDeniedContent(
         onClick = onRequestPermission,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("请求位置权限")
+        Text("Richiesta permesso")
     }
 }

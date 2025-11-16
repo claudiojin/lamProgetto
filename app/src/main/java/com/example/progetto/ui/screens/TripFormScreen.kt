@@ -9,8 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.example.progetto.R
 import com.example.progetto.data.dao.TripDao
 import com.example.progetto.data.entity.Trip
 import com.example.progetto.data.entity.TripType
@@ -38,7 +40,7 @@ fun TripFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (initialTrip == null) "添加新旅行" else "编辑旅行") },
+                title = { Text(if (initialTrip == null) stringResource(R.string.add_new_trip) else stringResource(R.string.edit_trip)) },
                 navigationIcon = {
                     IconButton(onClick = onCancel) { Icon(Icons.Default.ArrowBack, contentDescription = null) }
                 }
@@ -55,12 +57,12 @@ fun TripFormScreen(
             OutlinedTextField(
                 value = destination,
                 onValueChange = { destination = it },
-                label = { Text("目的地") },
+                label = { Text(stringResource(R.string.destination)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Text(text = "旅行类型", style = MaterialTheme.typography.labelLarge)
+            Text(text = stringResource(R.string.trip_type_label), style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TripType.values().forEach { t ->
                     FilterChip(
@@ -83,7 +85,7 @@ fun TripFormScreen(
             OutlinedTextField(
                 value = distanceText,
                 onValueChange = { distanceText = it },
-                label = { Text("距离 (公里，可选)") },
+                label = { Text(stringResource(R.string.distance_km)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -91,7 +93,7 @@ fun TripFormScreen(
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("备注（可选）") },
+                label = { Text(stringResource(R.string.notes_optional)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
@@ -132,7 +134,7 @@ fun TripFormScreen(
                 },
                 enabled = destination.text.isNotBlank() && startDate.isNotBlank() && endDate.isNotBlank(),
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("保存") }
+            ) { Text(stringResource(R.string.save)) }
         }
     }
 }

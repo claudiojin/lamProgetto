@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.example.progetto.data.database.TripDatabase
 import androidx.compose.material.icons.Icons
@@ -37,9 +38,9 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            println("✅ 通知权限已授予")
+            println("✅ Permesso di notifica ottenuto")
         } else {
-            println("❌ 通知权限被拒绝")
+            println("❌ Permesso di notifica non ottenuto")
         }
     }
 
@@ -65,10 +66,10 @@ class MainActivity : ComponentActivity() {
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    println("✅ 已有通知权限")
+                    println("✅ Permesso di notifica ottenuto")
                 }
                 else -> {
-                    println("🔔 请求通知权限")
+                    println("🔔 Richiesta di permesso di notifica")
                     notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
@@ -83,8 +84,8 @@ sealed class Screen {
     object Statistics : Screen()
     object GeofenceManagement : Screen()
     object HistoryMap : Screen()
-    data class PhotoGallery(val tripId: Long, val tripName: String) : Screen()  // ✅ 新增
-    data class NotesEditor(val tripId: Long) : Screen()  // ✅ 新增
+    data class PhotoGallery(val tripId: Long, val tripName: String) : Screen()
+    data class NotesEditor(val tripId: Long) : Screen()
 }
 
 @Composable
@@ -99,8 +100,8 @@ fun TravelCompanionApp(database: TripDatabase) {
             Screen.Recording -> Screen.TripDetail
             Screen.GeofenceManagement -> Screen.TripList
             Screen.HistoryMap -> Screen.TripList
-            is Screen.PhotoGallery -> Screen.TripDetail  // ✅ 新增
-            is Screen.NotesEditor -> Screen.TripDetail  // ✅ 新增
+            is Screen.PhotoGallery -> Screen.TripDetail
+            is Screen.NotesEditor -> Screen.TripDetail
             else -> Screen.TripList
         }
     }
@@ -118,25 +119,25 @@ fun TravelCompanionApp(database: TripDatabase) {
                         selected = currentScreen == Screen.TripList,
                         onClick = { currentScreen = Screen.TripList },
                         icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-                        label = { Text("旅行") }
+                        label = { Text(stringResource(R.string.nav_trips)) }
                     )
                     NavigationBarItem(
                         selected = currentScreen == Screen.HistoryMap,
                         onClick = { currentScreen = Screen.HistoryMap },
                         icon = { Icon(Icons.Filled.Map, contentDescription = null) },
-                        label = { Text("历史地图") }
+                        label = { Text(stringResource(R.string.nav_history_map)) }
                     )
                     NavigationBarItem(
                         selected = currentScreen == Screen.GeofenceManagement,
                         onClick = { currentScreen = Screen.GeofenceManagement },
                         icon = { Icon(Icons.Filled.Place, contentDescription = null) },
-                        label = { Text("围栏") }
+                        label = { Text(stringResource(R.string.nav_geofence)) }
                     )
                     NavigationBarItem(
                         selected = currentScreen == Screen.Statistics,
                         onClick = { currentScreen = Screen.Statistics },
                         icon = { Icon(Icons.Filled.BarChart, contentDescription = null) },
-                        label = { Text("统计") }
+                        label = { Text(stringResource(R.string.nav_statistics)) }
                     )
                 }
             }
@@ -147,8 +148,7 @@ fun TravelCompanionApp(database: TripDatabase) {
                 TripListScreen(
                     tripDao = database.tripDao(),
                     modifier = Modifier.padding(innerPadding),
-                    onTripClick = { tripId ->
-                        selectedTripId = tripId
+                    onTripClick = { _ ->
                         currentScreen = Screen.TripDetail
                     }
                 )
@@ -159,19 +159,18 @@ fun TravelCompanionApp(database: TripDatabase) {
                         tripId = tripId,
                         tripDao = database.tripDao(),
                         locationDao = database.locationDao(),
-                        photoDao = database.photoDao(),  // ✅ 新增
+                        photoDao = database.photoDao(),
                         noteDao = database.noteDao(),
                         onNavigateBack = {
                             currentScreen = Screen.TripList
                         },
-                        onStartRecording = { id ->
-                            selectedTripId = id
+                        onStartRecording = { _ ->
                             currentScreen = Screen.Recording
                         },
-                        onNavigateToPhotos = { id, name ->  // ✅ 新增
+                        onNavigateToPhotos = { id, name ->
                             currentScreen = Screen.PhotoGallery(id, name)
                         },
-                        onNavigateToNotes = { id ->  // ✅ 新增
+                        onNavigateToNotes = { id ->
                             currentScreen = Screen.NotesEditor(id)
                         }
                     )
@@ -215,7 +214,7 @@ fun TravelCompanionApp(database: TripDatabase) {
                     )
                 }
             }
-            is Screen.PhotoGallery -> {  // ✅ 新增
+            is Screen.PhotoGallery -> {
                 PhotoGalleryScreen(
                     tripId = screen.tripId,
                     tripName = screen.tripName,
@@ -225,7 +224,7 @@ fun TravelCompanionApp(database: TripDatabase) {
                     }
                 )
             }
-            is Screen.NotesEditor -> {  // ✅ 新增
+            is Screen.NotesEditor -> {
                 NotesEditorScreen(
                     tripId = screen.tripId,
                     tripDao = database.tripDao(),

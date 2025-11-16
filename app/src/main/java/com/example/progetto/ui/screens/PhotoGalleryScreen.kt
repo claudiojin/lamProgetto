@@ -20,9 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.progetto.R
 import com.example.progetto.data.dao.PhotoDao
 import com.example.progetto.data.entity.Photo
 import com.example.progetto.utils.PhotoManager
@@ -33,9 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/**
- * 照片相册界面
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoGalleryScreen(
@@ -52,22 +52,18 @@ fun PhotoGalleryScreen(
     var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
     var pendingPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-    // 照片选择器
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             scope.launch {
                 withContext(Dispatchers.IO) {
-                    // 保存照片
                     val filePath = PhotoManager.savePhoto(context, uri)
                     if (filePath != null) {
-                        // 获取当前位置（可能为 null）
                         val lastLocation = try {
                             locationManager.getLastLocation()
                         } catch (_: Exception) { null }
 
-                        // 保存到数据库（尽可能附带经纬度）
                         val photo = Photo(
                             tripId = tripId,
                             filePath = filePath,
@@ -81,12 +77,10 @@ fun PhotoGalleryScreen(
         }
     }
 
-    // 相机权限申请
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { /* 结果由下次重组检查 */ }
+    ) { }
 
-    // 拍照启动器
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success: Boolean ->
@@ -108,7 +102,6 @@ fun PhotoGalleryScreen(
                         )
                         photoDao.insert(photo)
 
-                        // 尝试删除媒体库中的临时条目，避免重复占用空间
                         try { context.contentResolver.delete(captureUri, null, null) } catch (_: Exception) {}
                     }
                 }
@@ -120,10 +113,10 @@ fun PhotoGalleryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("$tripName - 照片") },
+                title = { Text("$tripName - ${stringResource(R.string.photos)}") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -152,16 +145,15 @@ fun PhotoGalleryScreen(
                         }
                     }
                 ) {
-                    Icon(Icons.Default.AddAPhoto, contentDescription = "拍照")
+                    Icon(Icons.Default.AddAPhoto, contentDescription = stringResource(R.string.take_photo))
                 }
 
                 FloatingActionButton(
                     onClick = {
-                        // 打开照片选择器
                         photoPickerLauncher.launch("image/*")
                     }
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "添加照片")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_photo))
                 }
             }
         }
@@ -176,9 +168,9 @@ fun PhotoGalleryScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("📷", style = MaterialTheme.typography.displayLarge)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("还没有添加照片")
+                    Text(stringResource(R.string.no_photos_yet))
                     Text(
-                        "点击右下角+按钮添加照片",
+                        stringResource(R.string.add_photo_click),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -204,7 +196,6 @@ fun PhotoGalleryScreen(
         }
     }
 
-    // 照片详情对话框
     selectedPhoto?.let { photo ->
         PhotoDetailDialog(
             photo = photo,
@@ -222,9 +213,7 @@ fun PhotoGalleryScreen(
     }
 }
 
-/**
- * 照片网格项
- */
+
 @Composable
 private fun PhotoGridItem(
     photo: Photo,
@@ -241,16 +230,13 @@ private fun PhotoGridItem(
                 .data(File(photo.filePath))
                 .crossfade(true)
                 .build(),
-            contentDescription = "照片",
+            contentDescription = stringResource(R.string.photos_title),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
     }
 }
 
-/**
- * 照片详情对话框
- */
 @Composable
 private fun PhotoDetailDialog(
     photo: Photo,
@@ -261,7 +247,7 @@ private fun PhotoDetailDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("照片详情") },
+        title = { Text(stringResource(R.string.photo_details)) },
         text = {
             Column {
                 AsyncImage(
@@ -269,7 +255,7 @@ private fun PhotoDetailDialog(
                         .data(File(photo.filePath))
                         .crossfade(true)
                         .build(),
-                    contentDescription = "照片",
+                    contentDescription = stringResource(R.string.photos_title),
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 400.dp),
@@ -279,7 +265,7 @@ private fun PhotoDetailDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "拍摄时间：${
+                    text = "${stringResource(R.string.photo_time)}：${
                         java.text.SimpleDateFormat(
                             "yyyy-MM-dd HH:mm",
                             java.util.Locale.getDefault()
@@ -291,7 +277,7 @@ private fun PhotoDetailDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("关闭")
+                Text(stringResource(R.string.close))
             }
         },
         dismissButton = {
@@ -301,7 +287,7 @@ private fun PhotoDetailDialog(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("删除")
+                Text(stringResource(R.string.delete))
             }
         }
     )
@@ -309,8 +295,8 @@ private fun PhotoDetailDialog(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("确认删除") },
-            text = { Text("确定要删除这张照片吗？") },
+            title = { Text(stringResource(R.string.confirm_delete)) },
+            text = { Text(stringResource(R.string.confirm_delete_photo)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -318,12 +304,12 @@ private fun PhotoDetailDialog(
                         showDeleteConfirm = false
                     }
                 ) {
-                    Text("删除")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("取消")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

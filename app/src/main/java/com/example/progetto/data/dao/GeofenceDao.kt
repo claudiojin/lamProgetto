@@ -5,9 +5,7 @@ import com.example.progetto.data.entity.GeofenceArea
 import com.example.progetto.data.entity.GeofenceEvent
 import kotlinx.coroutines.flow.Flow
 
-/**
- * 地理围栏数据访问对象
- */
+
 @Dao
 interface GeofenceDao {
 

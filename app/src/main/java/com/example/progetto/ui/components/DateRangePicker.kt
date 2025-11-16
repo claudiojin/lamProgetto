@@ -29,23 +29,23 @@ fun DateRangePicker(
     var showStart by remember { mutableStateOf(false) }
     var showEnd by remember { mutableStateOf(false) }
 
-    val sdf = remember { SimpleDateFormat(dateFormat, Locale.getDefault()) }
+    val sdf = remember { SimpleDateFormat(dateFormat, Locale.ITALY) }
     val error: String? = remember(startDate, endDate) {
         try {
             if (startDate.isBlank() || endDate.isBlank()) return@remember null
             val s = sdf.parse(startDate)!!.time
             val e = sdf.parse(endDate)!!.time
-            if (e < s) "结束日期不能早于开始日期" else null
-        } catch (e: Exception) { "日期格式无效" }
+            if (e < s) "Data di termine non puo' essere precedente alla data di inizio" else null
+        } catch (e: Exception) { "Data non valida" }
     }
 
     Column(modifier = modifier) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(onClick = { showStart = true }, modifier = Modifier.weight(1f)) {
-                Text(if (startDate.isBlank()) "选择开始日期" else startDate)
+                Text(if (startDate.isBlank()) "Data di partenza" else startDate)
             }
             OutlinedButton(onClick = { showEnd = true }, modifier = Modifier.weight(1f)) {
-                Text(if (endDate.isBlank()) "选择结束日期" else endDate)
+                Text(if (endDate.isBlank()) "Data di fine" else endDate)
             }
         }
         if (error != null) {
@@ -65,7 +65,7 @@ fun DateRangePicker(
                         onChange(s, e)
                     }
                     showStart = false
-                }) { Text("确定") }
+                }) { Text("Confermo") }
             },
             dismissButton = { TextButton(onClick = { showStart = false }) { Text("取消") } }
         ) { DatePicker(state = state) }
@@ -81,7 +81,7 @@ fun DateRangePicker(
                         onChange(startDate, sdf.format(Date(millis)))
                     }
                     showEnd = false
-                }) { Text("确定") }
+                }) { Text("Confermo") }
             },
             dismissButton = { TextButton(onClick = { showEnd = false }) { Text("取消") } }
         ) { DatePicker(state = state) }

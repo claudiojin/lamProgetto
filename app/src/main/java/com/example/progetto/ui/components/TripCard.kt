@@ -18,7 +18,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.progetto.R
 import com.example.progetto.data.entity.Trip
 
 @Composable
@@ -32,7 +34,7 @@ fun TripCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable { onClick() },  // 整个卡片可点击，传递当前 trip
+            .clickable { onClick() },
 
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -60,14 +62,14 @@ fun TripCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "da ${trip.startDate} a ${trip.endDate}",
+                text = stringResource(R.string.date_range, trip.startDate, trip.endDate),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (trip.distance > 0) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Distanza: ${trip.distance} km",
+                    text = "${stringResource(R.string.distance_label)}: ${trip.distance} km",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -88,7 +90,7 @@ fun TripCard(
                 OutlinedButton(
                     onClick = { onEdit(trip) },
                     modifier = Modifier.weight(1f)
-                ) { Text("Modifica") }
+                ) { Text(stringResource(R.string.edit)) }
             }
             Button(
                 onClick = { onDeleted(trip) },
@@ -98,7 +100,7 @@ fun TripCard(
                 modifier = Modifier.fillMaxWidth()
 
             ) {
-                Text("Elimina")
+                Text(stringResource(R.string.delete))
             }
         }
     }

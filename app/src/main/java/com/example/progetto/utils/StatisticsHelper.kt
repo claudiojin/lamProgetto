@@ -10,7 +10,7 @@ object StatisticsHelper {
         return trips
             .groupBy { getYearMonth(it.startDate) }
             .mapValues { it.value.size }
-            .toSortedMap()  // 按月份排序
+            .toSortedMap()
     }
 
     fun getMonthlyDistance(trips: List<Trip>): Map<String, Double> {
@@ -37,33 +37,20 @@ object StatisticsHelper {
             calendar.add(Calendar.MONTH, -1)
         }
 
-        return result.reversed()  // 从早到晚排序
-    }
-
-    fun formatMonth(yearMonth: String): String {
-        return try {
-            val parts = yearMonth.split("-")
-            "${parts[1].toInt()}月"
-        } catch (e: Exception) {
-            yearMonth
-        }
+        return result.reversed()
     }
 
     private fun getYearMonth(dateString: String): String {
         return dateString.substring(0, 7)
     }
 
-    /**
-     * 获取年月字符串（从Date）
-     */
+
     private fun getYearMonth(date: Date): String {
-        val sdf = SimpleDateFormat("yyyy-MM", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy-MM", Locale.ITALY)
         return sdf.format(date)
     }
 
-    /**
-     * 计算总统计数据
-     */
+
     data class TotalStats(
         val totalTrips: Int,
         val totalDistance: Double,
